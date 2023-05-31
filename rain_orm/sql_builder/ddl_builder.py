@@ -1,0 +1,2 @@
+class DDLBuilder:
+    pass
