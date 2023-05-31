@@ -29,7 +29,7 @@ class Table(object):
         if not isinstance(self.__table__, str):
             raise DefineError(f"type(__table__) should be str, but is {type(self.__table__)}")
         if not isinstance(self.__fields__, dict):
-            raise DefineError(f"type(__instance__) should be dict, but is {type(self.__instance__)}")
+            raise DefineError(f"type(__fields__) should be dict, but is {type(self.__fields__)}")
 
         self.instance = copy.deepcopy(self.__fields__)
         self.__dmldql_builder = DMLDQLBuilder(self.__table__)
@@ -38,14 +38,12 @@ class Table(object):
 
     def __str__(self):
         table = self.__table__
-        fields = list(self.__fields__.keys())
         instance = "{\n"
         for k, v in self.instance.items():
             instance += f"\t\t{k}: {v},\n"
         instance += "\t}"
         return f"\033[0;36m<< {self.__class__.__name__} {id(self)}\033[0m\n" \
                f"\t\033[0;32m.table\033[0m = {table}\n" \
-               f"\t\033[0;32m.fields\033[0m = {fields}\n" \
                f"\t\033[0;32m.instance\033[0m = {instance}\n" \
                f"\033[0;36m>>\033[0m\n"
 

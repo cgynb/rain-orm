@@ -17,4 +17,3 @@ rain_orm/sql_builder/__init__.py
 rain_orm/sql_builder/ddl_builder.py
 rain_orm/sql_builder/dmldql_builder.py
 tests/__init__.py
-tests/test_db.py

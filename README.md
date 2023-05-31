@@ -28,7 +28,7 @@ rain_orm.connect(host="you host", port=3306, user="root", password="your passwor
 
 class StudentModel(rain_orm.Table):
     __table__ = "students"
-    __instance__ = {
+    __fields__ = {
         "id": None,
         "name": None,
         "password": None,
@@ -37,11 +37,15 @@ class StudentModel(rain_orm.Table):
 
 if __name__ == "__main__":
     stu = StudentModel().where("id=?", 1).one()
+    print("id: ", stu.id)
+    print("name: ", stu.name)
     print(stu)
 ```
 result
 
 ```cmd
+id: 1
+name: cgy
 <<StudentModel 2109293369984
     .table = students
     .instance = {
@@ -60,7 +64,7 @@ it's easy to use rain-orm
 1. import rain_orm
 2. connect to database
 3. define model class that inherits class rain_orm.Table
-4. define two attribute "\_\_table__" and "\_\_instance__"
+4. define two attribute "\_\_table__" and "\_\_fields__"
 5. use rain-orm API
 
 ## Import
