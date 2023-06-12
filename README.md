@@ -22,38 +22,40 @@ students
 
 ```python
 import rain_orm
+from rain_orm.column import Int, VarChar
 
-rain_orm.connect(host="you host", port=3306, user="root", password="your password", database="student_management")
+rain_orm.connect(host="localhost", port=3306, user="root", password="123456", database="student_management")
 
 
 class StudentModel(rain_orm.Table):
     __table__ = "students"
     __fields__ = {
-        "id": None,
-        "name": None,
-        "password": None,
-        "class_id": None
+        "id": Int(auto_increment=True, primary_key=True),
+        "name": VarChar(30, unique=True),
+        "password": VarChar(30),
+        "class_id": Int(default=1)
     }
 
 if __name__ == "__main__":
+    rain_orm.Table.auto_migrate()
     stu = StudentModel().where("id=?", 1).one()
-    print("id: ", stu.id)
-    print("name: ", stu.name)
     print(stu)
+
 ```
 result
 
 ```cmd
 id: 1
 name: cgy
-<<StudentModel 2109293369984
-    .table = students
-    .instance = {
-        id: 1,
-        name: cgy,
-        password: None,
-        class_id: 1,
-    }
+<< StudentModel 1951412882544
+	.table = students
+	.fields = ['id', 'name', 'password', 'gender', 'origin', 'class_id']
+	.instance = {
+		id: 1,
+		name: cgy,
+		password: 123456,
+		class_id: 1,
+	}
 >>
 ```
 
@@ -81,15 +83,24 @@ rain_orm.connect(host="you host", port=3306, user="root", password="your passwor
 
 each data must have a unique "id"
 ```python
-class StudentModel(RainORM):
+import rain_orm
+from rain_orm.column import Int, VarChar
+
+class StudentModel(rain_orm.Table):
     __table__ = "students"
     __fields__ = {
-        "id": None,
-        "name": None,
-        "password": None,
-        "class_id": None
+        "id": Int(auto_increment=True, primary_key=True),
+        "name": VarChar(30, unique=True),
+        "password": VarChar(30),
+        "class_id": Int(default=1)
     }
+
 ```
+## Auto Migrate
+```python
+rain_orm.Table.auto_migrate()
+```
+
 
 ## CRUD Example
 
@@ -129,7 +140,7 @@ ok: True
 
 ### Update
 
-there 2 ways to update data
+there are 2 ways to update data
 
 ```python
 StudentModel().where("id = ?", 22).one()  # get student instance first
@@ -145,3 +156,4 @@ ok = stu.update("name", "your name")
 StudentModel().where("id = ?", 22).one()  # get student instance first
 ok = stu.delete()  # call delete method
 ```
+
