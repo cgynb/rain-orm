@@ -23,9 +23,10 @@ class Table(object):
         cls.__db = db
 
     @classmethod
-    def auto_migrate(cls):
+    def auto_migrate(cls, *classes):
+        class_lst = classes if len(classes) > 0 else cls.__subclasses__()
         ddls = []
-        for subcls in cls.__subclasses__():
+        for subcls in class_lst:
             ddl_builder = DDLBuilder(subcls.__table__)
             for k, v in subcls.__fields__.items():
                 ddl_builder.add_field(field_name=k, field_type=v.type_name, **v.constraint)
@@ -47,8 +48,11 @@ class Table(object):
         self.__dmldql_builder = DMLDQLBuilder(self.__table__)
         for k, v in kwargs.items():
             self.instance[k].value = v
+        self.is_none = False
 
     def __str__(self):
+        if self.is_none is True:
+            return "None"
         table = self.__table__
         fields = list(self.__fields__.keys())
         instance = "{\n"
@@ -71,7 +75,7 @@ class Table(object):
 
     # update
     def __setattr__(self, key, value):
-        if key in ["instance", "_Table__dmldql_builder"]:
+        if key in ["instance", "_Table__dmldql_builder", "is_none"]:
             self.__dict__[key] = value
         else:
             self.update(key, value)
@@ -181,7 +185,6 @@ class Table(object):
                 self.__db.rollback()
                 return False
             else:
-                for key in self.instance.keys():
-                    self.instance[key].value = None
+                self.is_none = True
                 return True
 

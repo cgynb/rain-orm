@@ -97,8 +97,12 @@ class StudentModel(rain_orm.Table):
 
 ```
 ## Auto Migrate
+
 ```python
-rain_orm.Table.auto_migrate()
+# all subclasses that inherit rain_orm.Table
+rain_orm.Table.auto_migrate() 
+# create StudentModel
+rain_orm.Table.auto_migrate(StudentModel)
 ```
 
 
