@@ -1,5 +1,3 @@
-import datetime
-
 try:
     from rain_orm.error import DefineError, SqlBuildError, UpdateError
     from rain_orm.sql_builder import DMLDQLBuilder, DDLBuilder
@@ -46,10 +44,10 @@ class Table(object):
         if not all([isinstance(item, Type) for _, item in self.__fields__.items()]):
             raise ValueError(f"items of __fields__ should be instance of rain_orm.column.Type")
 
-        self.__instance = copy.deepcopy(self.__fields__)
+        self.instance = copy.deepcopy(self.__fields__)
         self.__dmldql_builder = DMLDQLBuilder(self.__table__)
         for k, v in kwargs.items():
-            self.__instance[k].value = v
+            self.instance[k].value = v
         self.is_none = False
 
     def __str__(self):
@@ -58,7 +56,7 @@ class Table(object):
         table = self.__table__
         fields = list(self.__fields__.keys())
         instance = "{\n"
-        for k, v in self.__instance.items():
+        for k, v in self.instance.items():
             if isinstance(v.value, str):
                 v = f"'{v.value}'"
             instance += f"\t\t{k}: {v},\n"
@@ -73,21 +71,14 @@ class Table(object):
         return str(self)
 
     def __getattr__(self, key):
-        return self.__instance.get(key).value
+        return self.instance.get(key).value
 
     # update
     def __setattr__(self, key, value):
-        if key in ["_Table__instance", "_Table__dmldql_builder", "is_none"]:
+        if key in ["instance", "_Table__dmldql_builder", "is_none"]:
             self.__dict__[key] = value
         else:
             self.update(key, value)
-
-    @property
-    def instance(self):
-        ins = dict()
-        for k, v in self.__instance.items():
-            ins[k] = v.value
-        return ins
 
     # select condition
     def where(self, condition, value=None):
@@ -96,9 +87,9 @@ class Table(object):
 
     # select
     def one(self):
-        target = sorted(self.__instance.keys()) if len(
+        target = sorted(self.instance.keys()) if len(
             self.__dmldql_builder.select_items) == 0 else self.__dmldql_builder.select_items
-        self.__dmldql_builder.select(*sorted(self.__instance.keys()))
+        self.__dmldql_builder.select(*sorted(self.instance.keys()))
         data = None
         with self.__lock:
             try:
@@ -109,7 +100,7 @@ class Table(object):
                 self.__db.rollback()
         if data is not None:
             for field, key in zip(data, target):
-                self.__instance[key].value = field
+                self.instance[key].value = field
             return self
         else:
             return None
@@ -117,9 +108,9 @@ class Table(object):
     # select
     def all(self):
         new_instances = list()
-        target = sorted(self.__instance.keys()) if len(
+        target = sorted(self.instance.keys()) if len(
             self.__dmldql_builder.select_items) == 0 else self.__dmldql_builder.select_items
-        self.__dmldql_builder.select(*sorted(self.__instance.keys()))
+        self.__dmldql_builder.select(*sorted(self.instance.keys()))
         with self.__lock:
             try:
                 self.__db.cursor.execute(self.__dmldql_builder.select_sql)
@@ -130,20 +121,20 @@ class Table(object):
         for data in datas:
             new_instance = self.__class__()
             for field, key in zip(data, target):
-                new_instance.__instance[key].value = field
+                new_instance.instance[key] = field
             new_instances.append(new_instance)
         return new_instances
 
     # insert
     def create(self):
         raw_instance = dict()
-        for k, v in self.__instance.items():
+        for k, v in self.instance.items():
             raw_instance[k] = v.value
         self.__dmldql_builder.set(**raw_instance)
         with self.__lock:
             try:
                 self.__db.cursor.execute(self.__dmldql_builder.insert_sql)
-                self.__instance["id"].value = self.__db.insert_id()
+                self.instance["id"].value = self.__db.insert_id()
                 self.__db.commit()
             except pymysql.MySQLError as e:
                 print(e)
@@ -154,14 +145,14 @@ class Table(object):
 
     # update
     def update(self, key, value):
-        if self.__instance.get(key) is None:
+        if self.instance.get(key) is None:
             raise UpdateError(f"there is no field called '{key}'")
         else:
             self.__dmldql_builder.clear_set()
             self.__dmldql_builder.set(**{key: value})
             self.__dmldql_builder.clear_where()
-            for field, val in self.__instance.items():
-                v = f"'{val.value}'" if isinstance(val.value, (str, datetime.datetime)) else val
+            for field, val in self.instance.items():
+                v = f"'{val.value}'" if isinstance(val.value, str) else val
                 self.__dmldql_builder.where(f"{field} = {v}")
             with self.__lock:
                 try:
@@ -172,13 +163,13 @@ class Table(object):
                     self.__db.rollback()
                     return False
                 else:
-                    self.__instance[key].value = value
+                    self.instance[key].value = value
                     return True
 
     # delete
     def delete(self):
         self.__dmldql_builder.clear_where()
-        for field, val in self.__instance.items():
+        for field, val in self.instance.items():
             if isinstance(val.value, str):
                 self.__dmldql_builder.where(f"{field} = '{val.value}'")
             elif val.value is None:
