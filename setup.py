@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name="rain_orm",
-    version="1.0.8",
+    version="1.0.9",
     author="rain",
     author_email="948628463@qq.com",
     description="a tiny orm frame",

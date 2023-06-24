@@ -25,7 +25,6 @@ class DDLBuilder:
 
     @property
     def create_sql(self):
-        # TODO: 外鍵
         sql = f"create table if not exists {self.table}"
         sql += "("
         for field in self.__fields:
@@ -33,6 +32,11 @@ class DDLBuilder:
             for k, v in field['constraint'].items():
                 if v is not False:
                     sql += f" {k}"
+            sql += ","
+        for i, fk in enumerate(self.__foreign_keys, start=1):
+            fk_name = f"{self.table}_{fk.get('reference').get('ref_table')}_{i}"
+            sql += f"constraint {fk_name} foreign key ({fk.get('field_name')}) " \
+                   f"references {fk.get('reference').get('ref_table')} ({fk.get('reference').get('ref_field')})"
             sql += ","
         sql = sql[:-1]
         sql += ")"

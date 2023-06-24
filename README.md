@@ -83,18 +83,25 @@ rain_orm.connect(host="you host", port=3306, user="root", password="your passwor
 
 each data must have a unique "id"
 ```python
-import rain_orm
+from rain_orm import Table
 from rain_orm.column import Int, VarChar
 
-class StudentModel(rain_orm.Table):
-    __table__ = "students"
+
+class ClassModel(Table):
+    __table__ = "classes"
     __fields__ = {
-        "id": Int(auto_increment=True, primary_key=True),
-        "name": VarChar(30, unique=True),
-        "password": VarChar(30),
-        "class_id": Int(default=1)
+        "id": Int(primary_key=True, auto_increment=True),
+        "name": VarChar(30)
     }
 
+
+class StudentModel(Table):
+    __table__ = "students"
+    __fields__ = {
+        "id": Int(primary_key=True, auto_increment=True),
+        "name": VarChar(30, not_null=True),
+        "class_id": Int(foreign_key=ClassModel.id)
+    }
 ```
 ## Auto Migrate
 

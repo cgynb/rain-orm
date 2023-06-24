@@ -24,6 +24,9 @@ class MetaTable(type):
     def __getattr__(cls, item):
         if item not in cls.__fields__.keys():
             raise ValueError(f"there's no field <{item}> in table {cls.__table__}")
-        return f"{cls.__table__}.{item}"
+        return {
+            "ref_table": cls.__table__,
+            "ref_field": item
+        }
 
 
