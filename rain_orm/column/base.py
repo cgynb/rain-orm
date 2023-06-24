@@ -8,14 +8,15 @@ class Type(object):
         cls.type_name = cls.__name__.casefold()
         return object.__new__(cls)
 
-    def __init__(self, primary_key=False, unique=False, not_null=False, auto_increment=False,  default=None):
+    def __init__(self, primary_key=False, unique=False, not_null=False, auto_increment=False, foreign_key=None,  default=None):
         self.__value = None
         self.default = default
         self.constraint = {
             "primary_key": primary_key,
             "auto_increment": auto_increment,
             "unique": unique,
-            "not_null": not_null
+            "not_null": not_null,
+            "foreign_key": foreign_key
         }
 
     def __str__(self):

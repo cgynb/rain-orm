@@ -5,20 +5,24 @@ try:
     from rain_orm.sql_builder import DMLDQLBuilder, DDLBuilder
     from rain_orm.column import Type
     from rain_orm.db import DB
+    from rain_orm.metatable import MetaTable
 except ImportError as e:
     print(e)
     from error import DefineError, SqlBuildError, UpdateError
     from sql_builder import DMLDQLBuilder, DDLBuilder
     from column import Type
     from db import DB
+    from metatable import MetaTable
 import pymysql
 import threading
 import copy
 
 
-class Table(object):
+class Table(metaclass=MetaTable):
     __db = None
     __lock = threading.Lock()
+    __table__ = ""
+    __fields__ = {}
 
     @classmethod
     def set_db(cls, db):
@@ -39,13 +43,6 @@ class Table(object):
             cls.__db.commit()
 
     def __init__(self, **kwargs):
-        if not isinstance(self.__table__, str):
-            raise ValueError(f"type(__table__) should be str, but is {type(self.__table__)}")
-        if not isinstance(self.__fields__, dict):
-            raise ValueError(f"type(__fields__) should be dict, but is {type(self.__fields__)}")
-        if not all([isinstance(item, Type) for _, item in self.__fields__.items()]):
-            raise ValueError(f"items of __fields__ should be instance of rain_orm.column.Type")
-
         self.__instance = copy.deepcopy(self.__fields__)
         self.__dmldql_builder = DMLDQLBuilder(self.__table__)
         for k, v in kwargs.items():

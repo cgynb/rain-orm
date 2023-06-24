@@ -3,9 +3,10 @@ class DDLBuilder:
         self.table = table
         self.__sql_str = None
         self.__fields = []
+        self.__foreign_keys = []
 
     def add_field(self, field_name, field_type, *, primary_key=False, unique=False, not_null=False,
-                  auto_increment=False):
+                  auto_increment=False, foreign_key=None):
         self.__fields.append({
             "field_name": field_name,
             "field_type": field_type,
@@ -16,9 +17,15 @@ class DDLBuilder:
                 "auto_increment": auto_increment
             }
         })
+        if foreign_key is not None:
+            self.__foreign_keys.append({
+                "field_name": field_name,
+                "reference": foreign_key
+            })
 
     @property
     def create_sql(self):
+        # TODO: 外鍵
         sql = f"create table if not exists {self.table}"
         sql += "("
         for field in self.__fields:
