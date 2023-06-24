@@ -56,7 +56,7 @@ class Table(metaclass=MetaTable):
         fields = list(self.__fields__.keys())
         instance = "{\n"
         for k, v in self.__instance.items():
-            if isinstance(v.value, str):
+            if isinstance(v.value, (str, datetime.datetime)):
                 v = f"'{v.value}'"
             instance += f"\t\t{k}: {v},\n"
         instance += "\t}"
@@ -176,7 +176,7 @@ class Table(metaclass=MetaTable):
     def delete(self):
         self.__dmldql_builder.clear_where()
         for field, val in self.__instance.items():
-            if isinstance(val.value, str):
+            if isinstance(val.value, (str, datetime.datetime)):
                 self.__dmldql_builder.where(f"{field} = '{val.value}'")
             elif val.value is None:
                 self.__dmldql_builder.where(f"{field} is null")

@@ -1,24 +1,20 @@
 try:
-    from rain_orm.column.base import Type
+    from rain_orm.column.base import Date
 except ImportError:
-    from base import Type
+    from base import Date
 
 
-class Date(Type):
+class Time(Date):
     pass
 
 
-class Time(Type):
+class Year(Date):
     pass
 
 
-class Year(Type):
+class DateTime(Date):
     pass
 
 
-class DateTime(Type):
-    pass
-
-
-class TimeStamp(Type):
+class TimeStamp(Date):
     pass

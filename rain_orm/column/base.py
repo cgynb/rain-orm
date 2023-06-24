@@ -1,3 +1,4 @@
+import datetime
 import warnings
 
 
@@ -57,4 +58,7 @@ class String(Type):
     def check(self, val):
         return isinstance(val, str) or val is None
 
-# class Date()
+
+class Date(Type):
+    def check(self, val):
+        return isinstance(val, datetime.datetime) or val is None
